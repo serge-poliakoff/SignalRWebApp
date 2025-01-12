@@ -16,14 +16,19 @@ namespace SignalRWebApp.Services
             tableSize = 25;
             /*groupsDict.TryAdd("Drawing penises",
                 new Group("Drawing penises", tableSize));
-            groupLockers.TryAdd("Drawing penises", new object());*/
+            groupLockers.TryAdd("Drawing penises", new object());  - was there for test only */
         }
         public Task<string> DropUser(string connectionId)
         {
             string groupName;
-            usersDict.TryRemove(connectionId, out groupName);  //removing a user
-            Group group = groupsDict.GetOrAdd(groupName, new Group());  //getting a group the user was in
-            object locker = groupLockers.GetOrAdd(groupName, new object()); //getting appropriate locker
+            if (!usersDict.TryRemove(connectionId, out groupName))
+                throw new Exception($"User {connectionId} not found");  //removing a user
+            Group group;
+            if (!groupsDict.TryGetValue(groupName, out group))
+                throw new Exception($"Group {groupName} not found");  //getting a group the user was in
+            object locker;
+            if (!groupLockers.TryGetValue(groupName, out locker))   //getting a locker to safely edit this group
+                throw new Exception("Something just went hell wrong here...");  //hope you'll never see this message
             string result = string.Empty;
             lock (locker)
             {
@@ -33,10 +38,10 @@ namespace SignalRWebApp.Services
                     groupsDict.Remove(groupName, out group);
                     groupLockers.Remove(groupName, out locker); //here the locker would be populated with it's own ref
                         //so I think this won't be a problem, right?
-                        result = groupName;
+                    result = groupName;
                 }
             }
-            return Task<bool>.FromResult(result);  //only to be able to await on this one
+            return Task<string>.FromResult(result);  //only to be able to await on this one
         }
 
         public Task TryAddGroup(string connectionId, string groupName)

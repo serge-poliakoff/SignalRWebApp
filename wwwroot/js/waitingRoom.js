@@ -2,6 +2,7 @@
 
 var connection = new signalR.HubConnectionBuilder().withUrl("/groups").build();
 
+//group managment
 connection.on("AddGroup", function (group) {
     var li = document.createElement("li");
     li.id = `group-select-${group}`;
@@ -36,12 +37,7 @@ connection.start().then(function () {
 
 function quitGroup() {
     connection.invoke("QuitGroup").then(() => {
-        document.getElementById("play-area").hidden = true;
-        let join_bts = document.getElementsByClassName("join-group-button");
-        for (let i = 0; i < join_bts.length; i++) {
-            join_bts[i].disabled = false;
-        }
-        recolorTable();
+        removeGroupBlock();
     }).catch((err) => {
             alert("An error procured during disconnecting: " + err.toString());
     });
@@ -53,10 +49,10 @@ function addNewGroup() {
         alert("You must give group a name");
         return;
     }
-    connection.invoke("AddNewGroup", groupName).then(constructGroupBlock(groupName))
+    connection.invoke("AddNewGroup", groupName).then(() => constructGroupBlock(groupName))
         .catch((err) => {
             alert("An error raised while adding the group " + groupName);
-            return console.error(err.toString());
+            removeGroupBlock();
         });
 }
 
@@ -98,4 +94,13 @@ function constructGroupBlock(groupName) {
     for (let i = 0; i < join_bts.length; i++) {
         join_bts[i].disabled = true;
     }
+}
+
+function removeGroupBlock() {
+    document.getElementById("play-area").hidden = true;
+    let join_bts = document.getElementsByClassName("join-group-button");
+    for (let i = 0; i < join_bts.length; i++) {
+        join_bts[i].disabled = false;
+    }
+    recolorTable();
 }
