@@ -1,0 +1,46 @@
+﻿@page
+@model IndexModel
+@inject SignalRWebApp.Services.GroupsManager t
+@{
+    ViewData["Title"] = "Home page";
+    //ViewData["table_count"] = t.size;
+}
+<div class="container">
+<div class="row">
+    <div class="col-sm">
+        <h3>Here you can see availible boards</h3>
+        <ul id="groupsList">
+
+        </ul>
+        <div class="column">
+            <input id="groupName-input" placeholder="Enter new group's name...  " />
+                <button onclick="addNewGroup()" class="join-group-button">Add new board</button>
+        </div>
+    </div>
+    <div class="col-sm" id="play-area" hidden>
+        <h3>Group Name</h3>
+        <div class="row-sm" style="border: groove 2px black; margin-bottom: 5px; padding: 10px">
+            Enter your color: 
+            <input id="col-input" placeholder="Indigo, #fd6a82, rgb(2,145,80)" style="width: inherit"/>
+        </div>
+        <div class="row-sm">
+            <table class="table-bordered">
+                @for (int i = 0; i < t.tableSize; i++)
+                {
+                    <tr class="d-table-row">
+                        @for (int j = 0; j < t.tableSize; j++)
+                        {
+                            <td class="clickable_cell" id="cell @i.ToString() @j.ToString()" style="padding: 10px"></td>
+                        }
+                    </tr>
+                }
+            </table>
+        </div>
+        <div class="column">
+            <button onclick="quitGroup()" style="margin-top: 10px">Quit this group</button>
+        </div>
+    </div>
+</div>
+</div>
+<script src="~/lib/microsoft/signalr/dist/browser/signalr.js"></script>
+<script src="~/js/waitingRoom.js"></script>
